@@ -1,0 +1,79 @@
+* {
+    margin : 0;
+    padding : 0;
+    font-family: Helvetica;
+}
+
+html, body {
+    height : 100%;
+}
+
+article.view {
+    height: inherit;
+    width: inherit;
+    position: absolute;
+    right: 0;
+    left: 0;
+    z-index: -1;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+}
+
+article.active_view {
+    z-index : 1;
+}
+
+article#main {
+    z-index: 0;
+}
+
+header.top_bar {
+    background: #111 -webkit-gradient(linear, 0% 0%, 0% 100%, from(#3C3C3C), to(#111));
+    color : #fff;
+    padding: 1px 2px 1px 2px;
+    display: -webkit-box;
+}
+
+.top_title {
+    padding: 9px 2px 9px 2px;
+    text-align: center;
+    -webkit-box-flex: 1;
+    border-right: 1px solid #111;
+    border-left: 1px solid #111;
+    font-size: 16px;
+}
+
+.top_button {
+    border: none;
+    display: block;
+    text-align: center;
+    background: #111 -webkit-gradient(linear, 0% 0%, 0% 100%, from(#3C3C3C), to(#111));
+    color: #fff;
+    font-size: 14px;
+    width: 85px;
+    height: inherit;
+    text-align: center;
+    cursor: pointer;
+}
+
+.top_button:active {
+    background: #111 -webkit-gradient(linear, 0% 0%, 0% 100%, from(#111), to(#3c3c3c));
+}
+
+#new_message_count {
+    background-color: red;
+    color: #fff;
+    padding: 2px;
+    margin-left: 2px;
+    -webkit-border-radius: 8px;
+    display: none;
+}
+
+div.content {
+    background-color: #fff;
+    -webkit-box-flex : 1;
+}
+
+div#message_list {
+    background-color: blue;
+}

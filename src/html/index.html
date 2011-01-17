@@ -1,18 +1,30 @@
 <!doctype html>
-<html>
+<html> 
 	<head>
 		<title>mapmate</title>
 		<meta charset="utf-8"></meta>
 		<script src="_ah/channel/jsapi"></script>
 		
-                <!-- JQuery Mobile -->
-		<link rel="stylesheet" href="http://code.jquery.com/mobile/1.0a2/jquery.mobile-1.0a2.min.css" />
-                <script src="http://code.jquery.com/jquery-1.4.4.min.js"></script>
-                <script src="http://code.jquery.com/mobile/1.0a2/jquery.mobile-1.0a2.min.js"></script>
+        <!-- JQuery Mobile -->
+        <link rel="stylesheet" href="http://code.jquery.com/mobile/1.0a2/jquery.mobile-1.0a2.min.css" />
+        <script src="http://code.jquery.com/jquery-1.4.4.min.js"></script>
+        <script>
+		$(document).bind("mobileinit", function(){
+			  $.extend(  $.mobile , {
+			    ajaxLinksEnabled: false,
+                ajaxFormsEnabled: false
+			  });
+			});
+		</script>
+        <script src="http://code.jquery.com/mobile/1.0a2/jquery.mobile-1.0a2.min.js"></script>
 		
-                <!--  Google Maps -->
+        <!--  Google Maps -->
 		<script src="http://www.google.com/jsapi"></script> 
 		<script src="http://maps.google.com/maps/api/js?sensor=true"></script>
+		
+		<!-- Facebook -->
+		<script src="http://connect.facebook.net/en_US/all.js"></script>
+		
 		<style>
 			body {
 				height: 100%;
@@ -64,7 +76,7 @@
 					}
 				},
 				socket      : null,
-				visibleUsers: new Array(),
+				visibleUsers: new Object(),
 				receivedMessages : new Array(),
 				sentMessages : new Array()
 		};
@@ -73,7 +85,7 @@
 				
 				initChannel : function () {
 			        data = {
-					    "function"	: "rpcInit",
+					    "func"	: "rpcInit",
 					    "location"	: state.location,
 					    "bounds"	: state.bounds
 			        };
@@ -81,24 +93,51 @@
 		        },
 		        
 				addUser : function (user) {
-			        var marker = new google.maps.Marker({
-				        position : new google.maps.LatLng(user['location']['lat'], user['location']['lng']),
-				        map      : state.map,
-				        title    : user['name']
-			        });
-			        state.visibleUsers.push(user);
+					if(typeof state.visibleUsers[user['key']] == 'undefined') {
+						state.visibleUsers[user['key']] = user;
+						state.visibleUsers[user['key']]['marker'] = new google.maps.Marker({
+				            position : new google.maps.LatLng(user['location']['lat'], user['location']['lng']),
+				            map      : state.map,
+				            title    : user['name'],
+				            icon     : '/pic?id=' + user['key']
+			            });
+                        google.maps.event.addListener(state.visibleUsers[user['key']].marker, 'click', function () {
+                            $("#profile_header").html(user.name);
+                            $("#profile_pic").attr("src", '/pic?id=' + user['key']);
+                            $("#profile_id").val(user["key"]);
+                            window.location.hash = "#profile";
+                        });
+					}
+				},
+
+				removeUser : function (data) {
+					state.visibleUsers[data['key']]['marker'].setMap(null);
+					delete state.visibleUsers[data['key']];
 				},
 
 				updateState : function() {
 					// TODO: implement
 					return;
 				},
+           
+                receivedMessage : function (data) {
+                     // TODO: implement
+                     alert(data.text);
+                },
+
+                sentMessage : function (data) {
+                    // TODO: implement
+                },
 
 				closeChannel : function () {
 					data = {
-					    "function"	: "rpcClose"
+					    "func"	: "rpcClose"
 					};
-					sendMessage('/channel', JSON.stringify(data));
+					$.ajax({
+						type	: 'POST',
+						url		: '/channel',
+						data	: JSON.stringify(data),
+					});
 				}
 		};
 
@@ -188,8 +227,14 @@
 		}
 
 		function onMessage(message) {
-			message = JSON.parse(message);
-			processResponse(message);
+			if(message) {
+				if(message.data) {
+			        response = JSON.parse(message.data);
+				} else {
+					response = JSON.parse(message);
+				}
+			    processResponse(response);
+		    }
 		}
 
 		function openChannel() {
@@ -201,7 +246,8 @@
 			};
 			state.socket = channel.open(handler);
 		}
-
+		
+		
 		function fixLayout() {
 			var cont = $("#content");
 			var headHeight = $("#header").css("height");
@@ -212,18 +258,36 @@
 		function init() {
 			fixLayout();
 			$(window).resize(fixLayout);
+            $("#message_form").submit(postMessage);
 			
 			initMap();
 		}
 
-		window.onload = init;
+        function postMessage() {
+           var message, act, id;
+           text = $("#message_body").val();
+           func = "rpcSendMessage";
+           recipient = $("#profile_id").val();
+           
+           param = {
+               "func" : "rpcSendMessage",
+               "text" : text,
+               "recipient" : recipient
+           };
+           sendMessage('/channel', JSON.stringify(param));
+           window.location.hash = "#mainPage";
+           return false;
+        }
+		
 		window.onunload = function() {
 			state.socket.close();
 			// niyeyse google'in api'i onclose eventini tetiklemiyor
 			actions.closeChannel();
 		};
-			
-	{% endif %}
+		$(window).bind('load', init);
+
+		{% endif %}
+		
 	</script>
 	
 	<div data-role="page" id="mainPage">
@@ -234,7 +298,7 @@
 	  		<a href="#settings">settings</a>
 	  		<a href="#messages" class="envelope_def" id="msgb">&#9993;</a>
 	  		{% else %}
-	  		<a href="{{ authlink }}" rel="external">{{ authtext }}</a>
+	  		<a href='{{ authlink }}' id="login">login</a>
 	  		{% endif %}
    		</header>  
 	  
@@ -244,23 +308,40 @@
  	</div> 
  	
  	<div data-role="page" id="messages">
- 		<div data-role="header">
+ 		<header data-role="header">
  			<h1>Messages</h1>
  			<a href="#mainPage" data-icon="arrow-l">back</a>
- 		</div>
+ 		</header>
  		<div data-role="content" id="messageList">
  		messages
  		</div>
  	</div>
  	
+    <div data-role="page" id="profile">
+        <header data-role="header">
+            <h1 id="profile_header"></h1>
+            <a href="#mainPage" data-icon="arrow-l">back</a>
+        </header>
+        <div data-role="content" id="profile_page">
+            <img id="profile_pic">
+            <form action="/channel" method="POST" id="message_form">
+                <input type="hidden" name="func" value="rpcSendMessage">
+                <input type="hidden" name="id" id="profile_id">
+                <label for="message_body">send message</label>
+                <textarea cols="40" rows="8" name="messae_body" id="message_body"></textarea>
+                <button id="message_buddon">send</button>
+            </form>
+        </div>
+    </div>
+
  	<div data-role="page" id="settings">
 		<div data-role="header">
  			<h1>Settings</h1>
  			<a href="#mainPage" data-icon="arrow-l">back</a>
  		</div>
  		<div data-role="content" id="settingList">
- 		    <a href="{{ authlink }}" rel="external" data-role="button">{{ authtext }}</a>
  		</div>
  	</div>
+
 	</body>
 </html>
