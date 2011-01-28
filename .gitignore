@@ -1,5 +1,5 @@
 .project
 .pydevproject
 *.pyc
-*.yaml
 src/settings.py
+src/index.yaml
