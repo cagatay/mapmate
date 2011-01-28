@@ -1,0 +1,12 @@
+# path the directory where template files reside in.
+# path must be written relative to the path of gaeisha
+
+DEBUG = True
+
+# application specific configuration
+
+#### facebook ####
+FACEBOOK_AUTH_URL = ''
+FACEBOOK_APP_SECRET = ''
+FACEBOOK_API_KEY = ''
+FACEBOOK_CLIENT_ID = ''
