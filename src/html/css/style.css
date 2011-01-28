@@ -27,6 +27,11 @@ article#main {
     z-index: 0;
 }
 
+article#start {
+    background-image: url('http://maps.google.com/maps/api/staticmap?center=Taksim+Meydani,Istanbul&size=320x480&sensor=true')
+    z-index: 1;
+}
+
 header.top_bar {
     background: #111 -webkit-gradient(linear, 0% 0%, 0% 100%, from(#3C3C3C), to(#111));
     color : #fff;

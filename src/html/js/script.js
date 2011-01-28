@@ -1,15 +1,22 @@
 /*global google, goog */
 
+FB.init({
+    appId: '159835304059396',
+    status: true,
+    cookie: true,
+    xfbml: true
+});
+
 /* utility functions */
-function $i(str) {
+function _i(str) {
     return document.getElementById(str);
 }
 
-function $c(str) {
+function _c(str) {
     return document.getElementsByClassName(str);
 }
 
-function $h(str) {
+function _h(str) {
     if (str instanceof String) {
         window.location.hash = str;
     } else {
@@ -17,15 +24,15 @@ function $h(str) {
     }
 }
 
-function $r(str) {
+function _r(str) {
     window.location.pathname = str;
 }
 
-function $e(e, c) {
+function _e(e, c) {
     window.addEventListener(e, c, false);
 }
 
-function $a(args) {
+function _a(args) {
 	var method, data, async, callback, x;
     method = typeof args.method === 'undefined' ? 'POST' : args.method;
     data = typeof args.data === 'undefined' ? null : args.data;
@@ -78,16 +85,12 @@ var mapOptions = {
     disableDefaultUI: false
 };
 
-function onOpen() {
-    getLocation();
-}
-
 function onMessage(message) {
     function callHandler(obj, arg) {
         var handler = obj.type;
         if (!(typeof handler === 'undefined' ||
-                    handler === 'ok' ||
-                    handler === 'error')) {
+                     handler === 'ok' ||
+                     handler === 'error')) {
             app.handlers[handler](arg);
         }
     }
@@ -119,7 +122,7 @@ function post(data, async) {
     args.async = async;
     args.callback = onMessage;
     
-    res = $a(args);
+    res = _a(args);
     if (res) {
         res = JSON.parse(res);
         return res.data;
@@ -129,28 +132,17 @@ function post(data, async) {
 function handleState() {
     var parts, id, param, view;
 
-    parts = $h().split('?');
+    parts = _h().split('?');
     id = parts[0];
     param = parts[1];
-    view = $c('active_view')[0];
+    view = _c('active_view')[0];
     if (app.views[id]) {
         app.views[id](param);
-        $i(id).className += ' active_view';
+        _i(id).className += ' active_view';
     }
     if (view) {
         view.className = 'view';
     }
-}
-
-function openChannel(token) {
-	var channel, handler;
-	channel = new goog.appengine.Channel(token);
-	handler = {
-		'onopen'    : onOpen,
-		'onmessage' : onMessage,
-        'onclose'   : onClose
-	};
-	socket = channel.open(handler);
 }
 
 function getLocation() {
@@ -164,13 +156,28 @@ function getLocation() {
     	/* for debug only
     	 * write this function properly before production
     	 */
-    	app.loc = debugLoc;
-    	app.init();
+        app.loc = debugLoc;
+        app.init();
     });
 }	
 
+function onOpen() {
+    getLocation();
+}
+
 function main() {
     app.main();
+}
+
+function openChannel(token) {
+	var channel, handler;
+	channel = new goog.appengine.Channel(token);
+	handler = {
+		'onopen'    : onOpen,
+		'onmessage' : onMessage,
+        'onclose'   : onClose
+	};
+	socket = channel.open(handler);
 }
 
 function close() {
@@ -195,7 +202,7 @@ Mate.prototype.addMarker = function (map) {
         icon     : this.pic
     });
     google.maps.event.addListener(this.marker, 'click', function () {
-        $h('#profile?' + key);
+        _h('#profile?' + key);
     });
 };
 
@@ -214,9 +221,9 @@ app = {
     views : {
         profile : function (id) {
             var pr = app.mates[id];
-            $i("profile_header").innerHTML = pr.name;
-            $i("profile_pic").setAttribute("src", pr.pic);
-            $i("profile_id").innerHTML = pr.key;
+            _i("profile_header").innerHTML = pr.name;
+            _i("profile_pic").setAttribute("src", pr.pic);
+            _i("profile_id").innerHTML = pr.key;
         }
     },
 
@@ -255,14 +262,14 @@ app = {
 
     createMap : function () {
         mapOptions.center = this.loc;
-        this.map = new google.maps.Map($i("map-canvas"), mapOptions);
+        this.map = new google.maps.Map(_i("map-canvas"), mapOptions);
         this.map.fitBounds(this.bounds);
     },
 
     postMessage : function () {
         var text, recipient, param;
-        text = $i("message_body").value;
-        recipient = $i("profile_id").value;
+        text = _i("message_body").value;
+        recipient = _i("profile_id").value;
        
         param = {
             "func" : "rpc_send_message",
@@ -270,7 +277,7 @@ app = {
             "recipient" : recipient
         };
         post(param);
-        $h("");
+        _h("");
     },
 
 
@@ -322,6 +329,6 @@ app = {
 };
 /* end app object */
 
-$e('load', main);
-$e('hashchange', handleState);
-$e('unload', close);
+_e('load', main);
+_e('hashchange', handleState);
+_e('unload', close);
