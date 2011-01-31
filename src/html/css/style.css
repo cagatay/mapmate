@@ -8,6 +8,18 @@ html, body {
     height : 100%;
 }
 
+div#div_ph {
+    background: #111 -webkit-gradient(linear, 0% 0%, 0% 100%, from(#3C3C3C), to(#111));
+    padding: 8px;
+    text-align: center;
+    margin: auto;
+}
+
+h1.logo {
+    color: #fff;
+    font-size: 16px;
+}
+
 article.view {
     height: inherit;
     width: inherit;
@@ -28,8 +40,10 @@ article#main {
 }
 
 article#start {
-    background-image: url('http://maps.google.com/maps/api/staticmap?center=Taksim+Meydani,Istanbul&size=320x480&sensor=true')
-    z-index: 1;
+    background-color: #fff;
+    background-image: url('http://maps.google.com/maps/api/staticmap?center=Taksim+Meydani,Istanbul&size=320x480&sensor=true');
+    background-size: 100%;
+    -webkit-box-align: center;
 }
 
 header.top_bar {

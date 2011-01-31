@@ -17,10 +17,10 @@ function _c(str) {
 }
 
 function _h(str) {
-    if (str instanceof String) {
-        window.location.hash = str;
-    } else {
+    if (typeof str === 'undefined') {
         return window.location.hash;
+    } else {
+        window.location.hash = str;
     }
 }
 
@@ -166,7 +166,11 @@ function onOpen() {
 }
 
 function main() {
-    app.main();
+    FB.getLoginStatus(function (response) {
+        if(response.session) {
+            app.start();
+        }
+    });
 }
 
 function openChannel(token) {
@@ -227,7 +231,8 @@ app = {
         }
     },
 
-    main : function () {
+    start : function () {
+        handleState();
         this.requestToken();
         openChannel(this.token);
     },
@@ -256,7 +261,7 @@ app = {
         if (res.type === 'authError') {
             this.handlers.authError();
         } else {
-	    this.token = res.token;
+            this.token = res.token;
         }
     },
 
@@ -332,3 +337,6 @@ app = {
 _e('load', main);
 _e('hashchange', handleState);
 _e('unload', close);
+FB.Event.subscribe('auth.sessionChange', function (response) {
+    app.start();
+});
