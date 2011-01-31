@@ -8,7 +8,7 @@ from urlparse import urlparse
  Controller class
 '''
 
-class Controller(webapp.RequestHandler):
+class handler(webapp.RequestHandler):
     def get(self):
         self.run_method(self.r)   
         return
