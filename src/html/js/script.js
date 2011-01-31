@@ -193,7 +193,7 @@ function close() {
 function Mate(data) {
     this.key = data.key;
     this.name = data.name;
-    this.pic = '/pic?id=' + this.key;
+    this.pic = 'http://graph.facebook.com/' + this.key + '/picture';
     this.loc = new google.maps.LatLng(data.location.lat, data.location.lng);
 }
 

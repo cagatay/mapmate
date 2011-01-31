@@ -1,11 +1,11 @@
 from gaeisha.db import model
+from gaeisha.app import Controller
+from gaeisha.plugins import gaeisha_fb
 from google.appenginee.ext import db
 
 class User(model):
-    id               = db.StringProperty()
     name             = db.StringProperty()
     first_name       = db.StringProperty()
-    picture          = db.BlobProperty()
     access_token     = db.StringProperty()
     profile_url      = db.LinkProperty()
     online           = db.BooleanProperty()
@@ -24,3 +24,4 @@ class Message(model):
     read             = db.BooleanProperty(default = False)
     sender_deleted   = db.BooleanProperty(default = False)
     receiver_deleted = db.BooleanProperty(default = False)
+

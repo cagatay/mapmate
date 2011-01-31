@@ -268,11 +268,5 @@ class oauthController(baseController):
             self.redirect_auth()
         return
 
-class picController(baseController):
-
-
-def main():
-   pass
-    
 if __name__ == "__main__":
     main()
