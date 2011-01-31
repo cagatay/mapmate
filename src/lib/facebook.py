@@ -212,16 +212,3 @@ authentication at http://developers.facebook.com/docs/authentication/.
         return args
     else:
         return None
-
-#### cagatay ######
-def get_access_token(app_secret, code, redirect_uri, client_id):
-    args = dict()
-    args["client_secret"] = app_secret
-    args['client_id'] = client_id
-    args['redirect_uri'] = redirect_uri
-    args["code"] = code
-    response = cgi.parse_qs(urllib2.urlopen(
-                "https://graph.facebook.com/oauth/access_token?" +
-                urllib.urlencode(args)).read())
-    access_token = response["access_token"][-1]
-    return access_token
