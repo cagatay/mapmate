@@ -1,4 +1,4 @@
-from gaeisha.app import Controller
+from gaeisha.base import handler
 from lib import facebook
 import settings
 
@@ -13,4 +13,4 @@ def current_user(self):
             self._uid = user['uid']
     return self._current_user
 
-Controller.current_user = current_user
+handler.current_user = current_user

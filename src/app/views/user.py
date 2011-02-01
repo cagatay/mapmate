@@ -4,25 +4,38 @@ Created on Dec 25, 2010
 @author: cagatay
 '''
 
-import facebook
-import geohash
+from lib import geohash
 
+from gaeisha.base import handler
 from google.appengine.api import channel, urlfetch
+from gaeisha.decorators import require_auth
 
-# TODO: exception handling
+from gaeisha.plugins import gaeisha_fb
+
+from app.models import User
+
+class view(handler):
     
-##############################################################################
-# rpcController class
-##############################################################################
-class rpcController(baseController):
+    @require_auth
+    def r(self, user_id=None):
+        response = None
 
-########################## rpcUpdateState ###############################
-    def rpcUpdateState(self, args):
-        # TODO: implement
-        return
-#########################################################################
+        if user_id:
+            user = User.get_by_key_name(user_id)
+            response = user
+        else:
+            current_user = User.get_by_key_name(self.current_user())
+            if not current_user:
+                raise Exception('user is not initialized')
 
+            bbox_hash = current_user.bbox_hash
+            users = User.fetch({ 'bbox_hash =': bbox_hash })
+            
+            response = users
+            
+        return response
 
+'''
 ########################## rpcSendMessage ################################    
     @require_auth
     def rpc_send_message(self, args):
@@ -137,12 +150,10 @@ class rpcController(baseController):
                                       'id      !='     : thisUser.id,
                                       'outerBoxHash =' : thisUser.outerBoxHash
                                       })
-            '''
             filter(lambda x: x.location.lat < bounds['north_east']['lat']
                          and x.location.lat > bounds['south_west']['lat']
                          and x.location.lon < bounds['north_east']['lng']
                          and x.location.lon > bounds['south_west']['lng'], usersAround)
-            '''
             for user in usersAround:
                 response.append({ 
                                  "type"        : 'addUser',
@@ -270,3 +281,4 @@ class oauthController(baseController):
 
 if __name__ == "__main__":
     main()
+'''

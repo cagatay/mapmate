@@ -1,11 +1,14 @@
 from django.utils import simplejson
 from google.appengine.ext import webapp
 from google.appengine.api import channel
-
 from urlparse import urlparse
 
+from lib import json
+
+import logging
+
 '''
- Controller class
+ Handler class
 '''
 
 class handler(webapp.RequestHandler):
@@ -34,7 +37,7 @@ class handler(webapp.RequestHandler):
     def error_data(self, err):
         return {
             'type' : 'error',
-            'error' : err
+            'error' : str(err)
         }
 
     def get_args(self):
@@ -60,7 +63,7 @@ class handler(webapp.RequestHandler):
         return
             
     def write_json(self, data):
-        self.response.out.write(simplejson.dumps({
+        self.response.out.write(json.encode({
             'data': data
         }))
         return
