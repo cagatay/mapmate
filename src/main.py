@@ -7,7 +7,7 @@ import settings
 import route
 
 def main():
-    application = webapp.WSGIApplication(route.urls, settings.DEBUG)
+    application = webapp.WSGIApplication(route.urls, debug=settings.DEBUG)
     util.run_wsgi_app(application)
 
 if __name__ == '__main__':

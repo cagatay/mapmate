@@ -1,17 +1,15 @@
 from django.utils import simplejson
 from google.appengine.ext import webapp
 from google.appengine.api import channel
-from urlparse import urlparse
 
 from lib import json
-
-import logging
 
 '''
  Handler class
 '''
 
 class handler(webapp.RequestHandler):
+
     def get(self):
         self.run_method(self.r)   
         return
@@ -40,21 +38,29 @@ class handler(webapp.RequestHandler):
             'error' : str(err)
         }
 
-    def get_args(self):
-        query_dict = {}
+    @property
+    def query(self):
+        if not hasattr(self, '_query'):
+            self._query = {}
+            parts = self.request.query_string.split('&')
 
-        query_string = self.request.query_string
-        post_data = simplejson.loads(self.request.body)
+            for p in parts:
+                try:
+                    key, value = p.split('=')
+                    self._query[key] = value
+                except:
+                    pass
 
-        query_dict.update(urlparse.parse_qs(query_string))
-        query_dict.update(post_data)
-        
-        return query_dict
+            post_data = self.request.body
+            if post_data:
+                post_data = simplejson.loads(post_data)
+                self._query.update(post_data)
+        return self._query
+            
 
     def run_method(self, method):
         try:
-            kwargs = self.get_args()
-            data = method(**kwargs)
+            data = method(**self.query)
         except Exception, err:
             data = self.error_data(err)
 

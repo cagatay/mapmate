@@ -2,16 +2,11 @@ from gaeisha.db import model
 from google.appengine.ext import db
 
 class User(model):
-    name             = db.StringProperty()
-    first_name       = db.StringProperty()
-    access_token     = db.StringProperty()
-    profile_url      = db.LinkProperty()
     online           = db.BooleanProperty()
     location         = db.GeoPtProperty()
     last_update      = db.DateTimeProperty(auto_now = True)
     location_hash    = db.StringProperty()
     bbox_hash        = db.StringProperty()
-    adjacent_boxes   = db.StringListProperty()
     scope            = db.StringListProperty()
 
 class Message(model):
@@ -22,4 +17,3 @@ class Message(model):
     read             = db.BooleanProperty(default = False)
     sender_deleted   = db.BooleanProperty(default = False)
     receiver_deleted = db.BooleanProperty(default = False)
-

@@ -1,9 +1,7 @@
 def require_auth(func):
     def inner_func(self, *args, **kwargs):
-        if self.current_user():
+        if self._uid:
             return func(self, *args, **kwargs)
         else:
-            return { 
-                'type' : 'authError' 
-            }
+            raise Exception('you need to be signed in')
     return inner_func
