@@ -44,7 +44,7 @@ function _a(args) {
     if (async) {
         x.onreadystatechange = function (e) {
             if (x.readyState === 4 && x.status === 200 && args.callback) {
-                callback(x.responseText);
+                callback(JSON.parse(x.responseText));
             }
         };
     }
@@ -52,7 +52,7 @@ function _a(args) {
     x.send(data);
     if (!async) {
         if (x.status === 200) {
-            return x.responseText;
+            return JSON.parse(x.responseText);
         }
     }
 }
@@ -85,7 +85,7 @@ var mapOptions = {
     disableDefaultUI: false
 };
 
-function onMessage(message) {
+function onResponse(message) {
     function callHandler(obj, arg) {
         var handler = obj.type;
         if (!(typeof handler === 'undefined' ||
@@ -95,11 +95,13 @@ function onMessage(message) {
         }
     }
 
-    var res, len, type, i;
+    var res, len, type, i, data;
     if (message) {
         if (message.data) {
-            res = JSON.parse(message.data);
-            if (res instanceof Array) {
+            res = message.data;
+            if(res.type === 'error') {
+                alert(res.error);
+            } else if(res instanceof Array) {
                 len = res.lenght;
                 for (i = 0; i < len; i += 1) {
                     callHandler(res[i]);
@@ -111,16 +113,23 @@ function onMessage(message) {
     }
 }
 
+function onMessage(message) {
+    var res = {};
+    res.data = JSON.parse(message.data);
+    onResponse(res);
+}
+
 function onClose() {
     app.close();
 }
 
-function post(data, async) {
+function post(path, method, data, async) {
     var args = {}, res;
     args.data = JSON.stringify(data);
-    args.path = '/channel';
+    args.path = path;
     args.async = async;
-    args.callback = onMessage;
+    args.callback = onResponse;
+    args.method = method;
     
     res = _a(args);
     if (res) {
@@ -149,26 +158,26 @@ function getLocation() {
     navigator.geolocation.getCurrentPosition(function (position) {
         app.loc = new google.maps.LatLng(position.coords.latitude,
                                          position.coords.longitude);
-        app.init();
+        app.start();
         // google.maps.event.addListener(state.map, 'tilesloaded', function () { var bounds = state.map.getBounds();
         //});		        
     }, function (error) {
-    	/* for debug only
-    	 * write this function properly before production
-    	 */
+        /* for debug only
+          write this function properly before production */
         app.loc = debugLoc;
-        app.init();
+        app.start();
     });
 }	
 
 function onOpen() {
-    getLocation();
+    return;
 }
 
 function main() {
     FB.getLoginStatus(function (response) {
         if(response.session) {
-            app.start();
+            handleState();
+            getLocation();
         }
     });
 }
@@ -232,17 +241,15 @@ app = {
     },
 
     start : function () {
-        handleState();
-        this.requestToken();
+        this.init();
         openChannel(this.token);
     },
 
     init : function () {
         var data = {
-            "func" : "rpc_init",
-            "location" : this.loc.getLoc()
+            location : this.loc.getLoc()
         };
-        post(data);
+        post('/user', 'PUT', data);
     },
 
     close : function () {
@@ -338,5 +345,8 @@ _e('load', main);
 _e('hashchange', handleState);
 _e('unload', close);
 FB.Event.subscribe('auth.sessionChange', function (response) {
-    app.start();
+    if(response.session) {
+        handleState();
+        getLocation();
+    }
 });
