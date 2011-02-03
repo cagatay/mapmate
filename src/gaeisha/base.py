@@ -3,6 +3,7 @@ from google.appengine.ext import webapp
 from google.appengine.api import channel
 
 from lib import json
+import logging
 
 '''
  Handler class
@@ -54,12 +55,16 @@ class handler(webapp.RequestHandler):
             post_data = self.request.body
             if post_data:
                 post_data = simplejson.loads(post_data)
-                self._query.update(post_data)
+                
+                # workaround for python issue2646
+                for key, value in post_data.iteritems():
+                    self._query[key.encode('utf-8')] = value
         return self._query
             
 
     def run_method(self, method):
         try:
+            logging.debug(self.query)
             data = method(**self.query)
         except Exception, err:
             data = self.error_data(err)
