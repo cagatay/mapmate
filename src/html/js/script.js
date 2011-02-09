@@ -32,19 +32,27 @@ function _e(e, c) {
     window.addEventListener(e, c, false);
 }
 
-function _a(args) {
-	var method, data, async, callback, x;
-    method = typeof args.method === 'undefined' ? 'POST' : args.method;
-    data = typeof args.data === 'undefined' ? null : args.data;
-    async = typeof args.async === 'undefined' ? true : args.async;
-    callback = typeof args.callback === 'undefined' ? null : args.callback;
+function _a(method, path, data, callback, async) {
+    data = JSON.stringify(data);
+
+    function p(response) {
+        res = JSON.parse(response).data;
+        if (res.type === 'error') {
+            alert(res.error);
+        } else {
+            callback(res);
+        }
+    }
+
+    var res;
+    async = true ? async : false;
 
     x = new XMLHttpRequest();
-    x.open(method, args.path, async);
+    x.open(method, path, async);
     if (async) {
         x.onreadystatechange = function (e) {
             if (x.readyState === 4 && x.status === 200 && args.callback) {
-                callback(JSON.parse(x.responseText));
+                p(x.responseText);
             }
         };
     }
@@ -52,7 +60,7 @@ function _a(args) {
     x.send(data);
     if (!async) {
         if (x.status === 200) {
-            return JSON.parse(x.responseText);
+            p(x.responseText);
         }
     }
 }
@@ -79,10 +87,7 @@ var mapOptions = {
     scaleControl: false,
     navigationControl: false,
     mapTypeControl: false,
-    keyboardShortcuts: false,
-    disableDoubleClickZoom: true,
-    draggable: false,
-    disableDefaultUI: false
+    keyboardShortcuts: false
 };
 
 function onResponse(message) {
@@ -119,23 +124,8 @@ function onMessage(message) {
     onResponse(res);
 }
 
-function onClose() {
-    app.close();
-}
-
-function post(path, method, data, async) {
-    var args = {}, res;
-    args.data = JSON.stringify(data);
-    args.path = path;
-    args.async = async;
-    args.callback = onResponse;
-    args.method = method;
-    
-    res = _a(args);
-    if (res) {
-        res = JSON.parse(res);
-        return res.data;
-    }
+function onOpen() {
+    return;
 }
 
 function handleState() {
@@ -159,8 +149,6 @@ function getLocation() {
         app.loc = new google.maps.LatLng(position.coords.latitude,
                                          position.coords.longitude);
         app.start();
-        // google.maps.event.addListener(state.map, 'tilesloaded', function () { var bounds = state.map.getBounds();
-        //});		        
     }, function (error) {
         /* for debug only
           write this function properly before production */
@@ -168,10 +156,6 @@ function getLocation() {
         app.start();
     });
 }	
-
-function onOpen() {
-    return;
-}
 
 function main() {
     FB.getLoginStatus(function (response) {
@@ -186,9 +170,8 @@ function openChannel(token) {
 	var channel, handler;
 	channel = new goog.appengine.Channel(token);
 	handler = {
-		'onopen'    : onOpen,
-		'onmessage' : onMessage,
-        'onclose'   : onClose
+        'onopen' : onOpen,
+		'onmessage' : onMessage
 	};
 	socket = channel.open(handler);
 }
@@ -200,16 +183,15 @@ function close() {
 
 /* mate object */
 function Mate(data) {
-    this.key = data.key;
-    this.name = data.name;
-    this.pic = 'http://graph.facebook.com/' + this.key + '/picture';
-    this.loc = new google.maps.LatLng(data.location.lat, data.location.lng);
+    this.fb_uid = data.fb_uid;
+    this.pic = 'http://graph.facebook.com/' + this.fb_uid + '/picture';
+    this.loc = new google.maps.LatLng(data.location.lat, data.location.lon);
 }
 
 Mate.prototype.addMarker = function (map) {
     var key = this.key;
     this.marker = new google.maps.Marker({
-        position : this.loc.googleLoc,
+        position : this.loc,
         map      : map,
         title    : this.name,
         icon     : this.pic
@@ -223,10 +205,6 @@ Mate.prototype.addMarker = function (map) {
 
 /* application object */
 app = {
-    token : null,
-    map : null,
-    loc : null,
-    bounds : null,
     receivedMessages : [],
     sentMessages : [],
     mates : {},
@@ -241,15 +219,25 @@ app = {
     },
 
     start : function () {
-        this.init();
-        openChannel(this.token);
-    },
-
-    init : function () {
         var data = {
             location : this.loc.getLoc()
         };
-        post('/user', 'PUT', data);
+
+        _a('POST', '/user', data, function (user) {
+            app.me = user;
+
+            sw = new google.maps.LatLng(user.box.sw.lat,
+                                        user.box.sw.lon);
+            ne = new google.maps.LatLng(user.box.ne.lat,
+                                        user.box.ne.lon);
+            app.bounds = new google.maps.LatLngBounds(sw, ne);
+
+            app.createMap();
+            openChannel(app.me.token);
+            app.getMessages();
+            app.getMates();
+
+        });
     },
 
     close : function () {
@@ -259,54 +247,42 @@ app = {
         post(data);
     },
 
-    requestToken : function () {
-        var data, res;
-        data = {
-            'func' : 'rpc_get_token'
-        };
-        res = post(data, false);
-        if (res.type === 'authError') {
-            this.handlers.authError();
-        } else {
-            this.token = res.token;
-        }
-    },
-
     createMap : function () {
         mapOptions.center = this.loc;
         this.map = new google.maps.Map(_i("map-canvas"), mapOptions);
         this.map.fitBounds(this.bounds);
+        google.maps.event.addListener(this.map, 'bounds_changed', function () {
+            this.fitBounds(app.bounds);
+        });
     },
 
-    postMessage : function () {
-        var text, recipient, param;
-        text = _i("message_body").value;
-        recipient = _i("profile_id").value;
-       
-        param = {
-            "func" : "rpc_send_message",
-            "text" : text,
-            "recipient" : recipient
-        };
-        post(param);
-        _h("");
+    getMessages : function () {
+        return;
     },
 
+    getMates : function () {
+        _a('GET', '/user', null, function (mates) {
+            var len = mates.length, i;
+            for(i = 0; i < len; i ++) {
+                if (mates[i].fb_uid !== app.me.fb_uid) {
+                    app.mates[mates[i].fb_uid] = new Mate(mates[i]);
+                }
+            }
+            app.addMarkers();
+            return;
+        });
+        return;
+    },
+
+    addMarkers : function () {
+        for (m in app.mates) {
+            if (app.mates.hasOwnProperty(m)) {
+                app.mates[m].addMarker(app.map);
+            }
+        }
+    },
 
     handlers : {
-        updateMap : function (data) {
-            var bounds, ne, sw;
-            bounds = data.bounds;
-            ne = new google.maps.LatLng(bounds.ne.lat, bounds.ne.lng);
-            sw = new google.maps.LatLng(bounds.sw.lat, bounds.sw.lng);
-            app.bounds = new google.maps.LatLngBounds(sw, ne);
-            if (app.map) {
-                app.updateMap();
-            } else {
-                app.createMap();
-            }
-        },
-
         addMate : function (data) {
             var userid = data.key;
             if (typeof app.mates[userid] === 'undefined') {

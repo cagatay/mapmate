@@ -38,18 +38,8 @@ import hashlib
 import time
 import urllib, urllib2
 
-# Find a JSON parser
-try:
-    import json
-    _parse_json = lambda s: json.loads(s)
-except ImportError:
-    try:
-        import simplejson
-        _parse_json = lambda s: simplejson.loads(s)
-    except ImportError:
-        # For Google AppEngine
-        from django.utils import simplejson
-        _parse_json = lambda s: simplejson.loads(s)
+from django.utils import simplejson
+_parse_json = lambda s: simplejson.loads(s)
 
 
 class GraphAPI(object):

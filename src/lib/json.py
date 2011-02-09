@@ -56,6 +56,9 @@ class GqlEncoder(simplejson.JSONEncoder):
       output = {}
       for field, value in properties:
         output[field] = getattr(obj, field)
+      # dirty hack - cagatay
+      if hasattr(obj, 'token'):
+          output['token'] = getattr(obj, 'token')
       return output
 
     elif isinstance(obj, datetime.datetime):
@@ -73,6 +76,14 @@ class GqlEncoder(simplejson.JSONEncoder):
 
     elif isinstance(obj, time.struct_time):
       return list(obj)
+    
+    #Added support for GeoPt - cagatay
+    elif isinstance(obj, db.GeoPt):
+      output = {}
+      fields = ['lat', 'lon']
+      for field in fields:
+          output[field] = getattr(obj, field)
+      return output
 
     elif isinstance(obj, users.User):
       output = {}
