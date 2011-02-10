@@ -8,7 +8,6 @@ import logging
 from app.models import User
 from app.views import base
 from app.decorators import require_auth, json_in, json_out
-from google.appengine.ext import db
 
 class view(base.view):
     
@@ -24,15 +23,11 @@ class view(base.view):
         scope = []
 
         for x in query:
-            logging.debug(x)
-            if x != user:
-                self.send_message(x, {
-                    'type' : 'add-mate',
-                    'data' : {
-                        'mate' : x
-                    }
-                })
-                scope.append(x)
+            self.send_message(x.fb_uid, {
+                'type' : 'add-mate',
+                'mate' : user
+            })
+            scope.append(x)
         return scope
 
     @json_in
@@ -48,6 +43,7 @@ class view(base.view):
 
     @require_auth
     def delete(self):
+        logging.info('in delete')
         uid = self.fb_uid
         
         user = User.get_by_key_name(uid)
@@ -57,12 +53,10 @@ class view(base.view):
         scope = user.box.user_set.filter('online =', True)
 
         for x in scope:
-            self.send_message(x, [{
+            self.send_message(x.fb_uid, {
                 'type' : 'remove-mate',
-                'data' : { 
-                     "uid"  : uid
-                 }
-            }])
+                'uid'  : uid
+            })
 
         return
 

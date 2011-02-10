@@ -12,11 +12,9 @@
     <article id='main' class='view'>
       
       <header class='top_bar'>
-        <button class='top_button top_button_left'>settings</button>
+        <a class='inline-button' href='#settings'>settings</a>
         <h1 class='top_title'>mapmate</h1>
-        <button class='top_button top_button_right'>
-            messages<span id='new_message_count'></span>
-        </button>
+        <a class='inline-button' href='#messages'>messages</a>
       </header>
 
       <div id='map-canvas' class='content'>
@@ -30,7 +28,9 @@
         <h1 class='top_title'>messages</h1>
       </header>
                
-      <div id='message_list' class='content'>
+      <div class='content'>
+          <ul id='chat-list'>
+          </ul>
       </div>
 
     </article>
@@ -38,12 +38,20 @@
     <article id='profile' class='view'>
            
       <header class='top_bar'>
-        <h1 class='top_title' id="profile_header"></h1>
+        <h1 class='top_title'>mapmate</h1>
       </header>
                
-      <div class='content'>
-          <span id='profile_id'></span>
-          <img id='profile_pic'>
+      <div class='content' id='profile-content'>
+          <div class='content-row'>
+              <img id='profile-pic'>
+              <h1 id='profile-name'></h1>
+          </div>
+          <div class='content-row'>
+              <button class='inline-button' id='send-message'>send a message</button>
+          </div>
+
+          <dl id='profile-info'>
+          </dl>
       </div>
 
     </article>

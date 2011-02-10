@@ -53,29 +53,40 @@ header.top_bar {
     display: -webkit-box;
 }
 
+.content-row {
+    height: auto;
+    display: -webkit-box;
+    padding: 5px;
+}
+
+.content-row > * {
+    display: block;
+    height: 50px;
+}
+
 .top_title {
     padding: 9px 2px 9px 2px;
     text-align: center;
-    -webkit-box-flex: 1;
+    -webkit-box-flex: 2;
     border-right: 1px solid #111;
     border-left: 1px solid #111;
     font-size: 16px;
 }
 
-.top_button {
+.inline-button {
     border: none;
     display: block;
-    text-align: center;
-    background: #111 -webkit-gradient(linear, 0% 0%, 0% 100%, from(#3C3C3C), to(#111));
     color: #fff;
     font-size: 14px;
-    width: 85px;
-    height: inherit;
     text-align: center;
+    text-decoration: none;
     cursor: pointer;
+    -webkit-box-flex: 1;
+    padding-top: 9px;
+    background: #111 -webkit-gradient(linear, 0% 0%, 0% 100%, from(#3C3C3C), to(#111));
 }
 
-.top_button:active {
+.inline-button:active {
     background: #111 -webkit-gradient(linear, 0% 0%, 0% 100%, from(#111), to(#3c3c3c));
 }
 
@@ -91,8 +102,10 @@ header.top_bar {
 div.content {
     background-color: #fff;
     -webkit-box-flex : 1;
+    overflow: scroll;
 }
 
-div#message_list {
-    background-color: blue;
+#profile-name {
+    padding: 5px;
+    -webkit-box-flex: 1;
 }

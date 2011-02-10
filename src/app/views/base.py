@@ -4,6 +4,8 @@ from lib import json
 
 from lib import facebook
 import settings
+import traceback
+import logging
 
 class view(webapp.RequestHandler):
     def _get_fb_user(self):
@@ -26,8 +28,7 @@ class view(webapp.RequestHandler):
         try:
             channel.send_message(client_id, json.encode(message))
         except:
-            pass
-        
+            traceback.print_exc()
 
     def error_data(self, err):
         return {

@@ -40,6 +40,11 @@ class User(db.Model):
         self.fb_uid = self.key().name()
         self.put()
 
+class Chat(db.Model):
+    starter          = db.ReferenceProperty(User, collection_name = 'started_set')
+    participant      = db.ReferenceProperty(User, collection_name = 'participated_set')
+    date             = db.DateTimeProperty(auto_now_add = True)
+
 class Message(db.Model):
     sender           = db.ReferenceProperty(User, collection_name = "sent_set")
     receiver         = db.ReferenceProperty(User, collection_name = "received_set")

@@ -33,14 +33,18 @@ function _e(e, c) {
 }
 
 function _a(method, path, data, callback, async) {
-    data = JSON.stringify(data);
+    if (data !== null) {
+        data = JSON.stringify(data);
+    }
 
     function p(response) {
         res = JSON.parse(response).data;
         if (res.type === 'error') {
             alert(res.error);
         } else {
-            callback(res);
+            if (callback) {
+                callback(res);
+            }
         }
     }
 
@@ -90,38 +94,17 @@ var mapOptions = {
     keyboardShortcuts: false
 };
 
-function onResponse(message) {
-    function callHandler(obj, arg) {
-        var handler = obj.type;
-        if (!(typeof handler === 'undefined' ||
-                     handler === 'ok' ||
-                     handler === 'error')) {
-            app.handlers[handler](arg);
-        }
-    }
-
-    var res, len, type, i, data;
-    if (message) {
-        if (message.data) {
-            res = message.data;
-            if(res.type === 'error') {
-                alert(res.error);
-            } else if(res instanceof Array) {
-                len = res.lenght;
-                for (i = 0; i < len; i += 1) {
-                    callHandler(res[i]);
-                }
-            } else {
-                callHandler(res);
-            }
-        }
-    }
-}
-
 function onMessage(message) {
-    var res = {};
-    res.data = JSON.parse(message.data);
-    onResponse(res);
+    message = JSON.parse(message.data);
+    console.log(message);
+    switch(message.type) {
+        case 'add-mate':
+            app.addMate(message.mate);
+            break;
+        case 'remove-mate':
+            app.removeMate(message.uid);
+            break;
+    }
 }
 
 function onOpen() {
@@ -132,13 +115,19 @@ function handleState() {
     var parts, id, param, view;
 
     parts = _h().split('?');
-    id = parts[0];
+    id = parts[0].substring(1);
     param = parts[1];
     view = _c('active_view')[0];
-    if (app.views[id]) {
-        app.views[id](param);
-        _i(id).className += ' active_view';
+    
+    switch (id) {
+        case 'profile':
+            app.showProfile(param);
+            _i(id).className += ' active_view';
+            break;
+        case 'messages':
+            _i(id).className += ' active_view';
     }
+
     if (view) {
         view.className = 'view';
     }
@@ -178,28 +167,25 @@ function openChannel(token) {
 
 function close() {
     socket.close();
+    app.close();
 }
 /* end globals */
 
 /* mate object */
 function Mate(data) {
-    this.fb_uid = data.fb_uid;
-    this.pic = 'http://graph.facebook.com/' + this.fb_uid + '/picture';
+    var fb_uid = data.fb_uid;
+    this.fb_uid = fb_uid;
+    this.pic = 'http://graph.facebook.com/' + fb_uid + '/picture';
     this.loc = new google.maps.LatLng(data.location.lat, data.location.lon);
-}
-
-Mate.prototype.addMarker = function (map) {
-    var key = this.key;
     this.marker = new google.maps.Marker({
         position : this.loc,
-        map      : map,
-        title    : this.name,
+        map      : app.map,
         icon     : this.pic
     });
     google.maps.event.addListener(this.marker, 'click', function () {
-        _h('#profile?' + key);
+        _h('#profile?' + fb_uid);
     });
-};
+}
 
 /* end mate object */
 
@@ -208,15 +194,6 @@ app = {
     receivedMessages : [],
     sentMessages : [],
     mates : {},
-
-    views : {
-        profile : function (id) {
-            var pr = app.mates[id];
-            _i("profile_header").innerHTML = pr.name;
-            _i("profile_pic").setAttribute("src", pr.pic);
-            _i("profile_id").innerHTML = pr.key;
-        }
-    },
 
     start : function () {
         var data = {
@@ -241,10 +218,7 @@ app = {
     },
 
     close : function () {
-        var data = {
-            "func"	: "rpc_close"
-        };
-        post(data);
+        _a('DELETE', '/user', null);
     },
 
     createMap : function () {
@@ -268,51 +242,49 @@ app = {
                     app.mates[mates[i].fb_uid] = new Mate(mates[i]);
                 }
             }
-            app.addMarkers();
             return;
         });
         return;
     },
 
-    addMarkers : function () {
-        for (m in app.mates) {
-            if (app.mates.hasOwnProperty(m)) {
-                app.mates[m].addMarker(app.map);
-            }
+    addMate : function (mate) {
+        var fb_uid = mate.fb_uid;
+        if (fb_uid !== this.me.fb_uid) {
+            this.mates[fb_uid] = new Mate(mate);
         }
     },
 
-    handlers : {
-        addMate : function (data) {
-            var userid = data.key;
-            if (typeof app.mates[userid] === 'undefined') {
-                app.mates[userid] = new Mate(data);
-                app.mates[userid].addMarker(app.map);
+    removeMate : function (uid) {
+        app.mates[uid].marker.setMap(null);
+        delete app.mates[uid];
+    },
+
+    showProfile : function (id) {
+        var dd, dt, pr = app.mates[id];
+        _i("profile-pic").setAttribute("src", pr.pic);
+
+        FB.api('/' + id, function (response) {
+            var profileInfo = _i('profile-info');
+            _i('profile-name').innerHTML = response.first_name;
+
+            while (profileInfo.childNodes[0]) {
+                profileInfo.removeChild(profileInfo.childNodes[0]);
             }
-        },
 
-        removeMate : function (data) {
-            app.mates[data.key].marker.setMap(null);
-            delete app.mates[data.key];
-        },
 
-        authError : function () {
-            window.location.pathname = '/oauth';
-        },
-
-        updateState : function () {
-        // TODO: implement
-            return;
-        },
-
-        receivedMessage : function (data) {
-        // TODO: implement
-            alert(data.text);
-        },
-
-        sentMessage : function (data) {
-        // TODO: implement
-        }
+            for (var item in response) {
+                if (response.hasOwnProperty(item)) {
+                    dt = document.createElement('dt');
+                    dt.innerHTML = item;
+                    dd = document.createElement('dd');
+                    dd.innerHTML = response[item];
+                    profileInfo.appendChild(dt);
+                    profileInfo.appendChild(dd);
+                }
+            }
+                    
+            console.log(response);
+        });
     }
 };
 /* end app object */
