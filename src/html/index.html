@@ -1,71 +1,71 @@
 <!doctype html>
 <html>
-
   <head>
-      <meta charset="utf-8"></meta>
-      <title>mapmate</title>
-      <link rel="stylesheet" href="css/style.css">
+    <meta charset="utf-8"></meta>
+    <title>mapmate</title>
+    <link rel="stylesheet" href="css/style.css">
   </head>
-  
   <body>
-      
     <article id='main' class='view'>
-      
       <header class='top_bar'>
         <a class='inline-button' href='#settings'>settings</a>
-        <h1 class='top_title'>mapmate</h1>
+        <h1 class='top-title'>mapmate</h1>
         <a class='inline-button' href='#messages'>messages</a>
       </header>
-
       <div id='map-canvas' class='content'>
       </div>
-
     </article>
 
     <article id='messages' class='view'>
-           
       <header class='top_bar'>
-        <h1 class='top_title'>messages</h1>
+        <h1 class='top-title'>messages</h1>
       </header>
                
       <div class='content'>
-          <ul id='chat-list'>
-          </ul>
+        <ul id='chat-list'>
+        </ul>
       </div>
-
     </article>
 
     <article id='profile' class='view'>
-           
       <header class='top_bar'>
-        <h1 class='top_title'>mapmate</h1>
+        <h1 class='top-title'>mapmate</h1>
       </header>
-               
       <div class='content' id='profile-content'>
-          <div class='content-row'>
-              <img id='profile-pic'>
-              <h1 id='profile-name'></h1>
-          </div>
-          <div class='content-row'>
-              <button class='inline-button' id='send-message'>send a message</button>
-          </div>
+        <div class='content-row'>
+          <img id='profile-pic'>
+          <h1 id='profile-name'></h1>
+        </div>
 
-          <dl id='profile-info'>
-          </dl>
+        <dl id='profile-info'>
+        </dl>
       </div>
+      <div class='content-row'>
+        <a class='inline-button' id='send-message'>send a message</a>
+      </div>
+    </article>
 
+    <article id='chat' class='view'>
+      <div class='content' id='chat-content'>
+        <div class='content-row'>
+          <textarea id='message-text'></textarea>
+        </div>
+        <div class='content-row'>
+          <button class='inline-button' id='post-message'>send</button>
+        </div>
+        <ul id='message-list'>
+        </ul>
+      </div>
     </article>
 
     <article id='start' class='view active_view'>
-        <div id='div_ph'>
-            <h1 class='logo'>mapmate</h1>
-            <fb:login-button></fb:login-button>
-        </div>
+      <div id='div_ph'>
+        <h1 class='top-title'>mapmate</h1>
+        <fb:login-button></fb:login-button>
+      </div>
     </article>
 
-
     <div id='fb-root'></div>
-
   </body>
   <script src="_ah/channel/jsapi"></script>
   <script src="http://maps.google.com/maps/api/js?sensor=true"></script>

@@ -46,13 +46,11 @@ class Chat(db.Model):
     date             = db.DateTimeProperty(auto_now_add = True)
 
 class Message(db.Model):
+    chat             = db.ReferenceProperty(Chat)
     sender           = db.ReferenceProperty(User, collection_name = "sent_set")
-    receiver         = db.ReferenceProperty(User, collection_name = "received_set")
     text             = db.TextProperty()
     date             = db.DateTimeProperty(auto_now_add = True)
     read             = db.BooleanProperty(default = False)
-    sender_deleted   = db.BooleanProperty(default = False)
-    receiver_deleted = db.BooleanProperty(default = False)
 
 class Shout(db.Model):
     box              = db.ReferenceProperty(Box)

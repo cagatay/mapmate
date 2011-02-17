@@ -104,6 +104,9 @@ function onMessage(message) {
         case 'remove-mate':
             app.removeMate(message.uid);
             break;
+        case 'new-message':
+            app.newMessage(message.message);
+            break;
     }
 }
 
@@ -126,6 +129,11 @@ function handleState() {
             break;
         case 'messages':
             _i(id).className += ' active_view';
+            break;
+        case 'chat':
+            app.showChat(param);
+            _i(id).className += ' active_view';
+            break;
     }
 
     if (view) {
@@ -191,8 +199,7 @@ function Mate(data) {
 
 /* application object */
 app = {
-    receivedMessages : [],
-    sentMessages : [],
+    chats : {},
     mates : {},
 
     start : function () {
@@ -249,7 +256,7 @@ app = {
 
     addMate : function (mate) {
         var fb_uid = mate.fb_uid;
-        if (fb_uid !== this.me.fb_uid) {
+        if (fb_uid !== this.me.fb_uid && !this.mates[fb_uid]) {
             this.mates[fb_uid] = new Mate(mate);
         }
     },
@@ -259,9 +266,29 @@ app = {
         delete app.mates[uid];
     },
 
+    newMessage : function (message) {
+        console.log(message);
+        return;
+    },
+
+    postMessage : function (uid) {
+        var textArea = _i('message-text');
+        var message = {
+            text : textArea.value,
+            reciepent : uid
+        };
+
+        _a('POST', '/message', message, function (response) {
+            console.log(response);
+            textArea.value = '';
+        }, false);
+
+    },
+
     showProfile : function (id) {
         var dd, dt, pr = app.mates[id];
-        _i("profile-pic").setAttribute("src", pr.pic);
+        _i('profile-pic').setAttribute('src', pr.pic);
+        _i('send-message').setAttribute('href', '#chat?' + id);
 
         FB.api('/' + id, function (response) {
             var profileInfo = _i('profile-info');
@@ -285,13 +312,22 @@ app = {
                     
             console.log(response);
         });
+    },
+
+    showChat : function (id) {
+        var but = _i('post-message');
+        but.dataset.uid = id;
     }
+        
 };
 /* end app object */
 
 _e('load', main);
 _e('hashchange', handleState);
 _e('unload', close);
+_i('post-message').addEventListener('click', function () {
+    app.postMessage(this.dataset.uid);
+});
 FB.Event.subscribe('auth.sessionChange', function (response) {
     if(response.session) {
         handleState();

@@ -8,16 +8,16 @@ html, body {
     height : 100%;
 }
 
+textarea {
+    display: block;
+    -webkit-box-flex: 1;
+}
+
 div#div_ph {
     background: #111 -webkit-gradient(linear, 0% 0%, 0% 100%, from(#3C3C3C), to(#111));
     padding: 8px;
     text-align: center;
     margin: auto;
-}
-
-h1.logo {
-    color: #fff;
-    font-size: 16px;
 }
 
 article.view {
@@ -29,6 +29,7 @@ article.view {
     z-index: -1;
     display: -webkit-box;
     -webkit-box-orient: vertical;
+    background-color: #fff;
 }
 
 article.active_view {
@@ -64,20 +65,21 @@ header.top_bar {
     height: 50px;
 }
 
-.top_title {
+.top-title {
     padding: 9px 2px 9px 2px;
     text-align: center;
     -webkit-box-flex: 2;
     border-right: 1px solid #111;
     border-left: 1px solid #111;
-    font-size: 16px;
+    font-size: 18px;
 }
 
 .inline-button {
     border: none;
     display: block;
     color: #fff;
-    font-size: 14px;
+    font-size: 16px;
+    font-weight: bold;
     text-align: center;
     text-decoration: none;
     cursor: pointer;
@@ -90,6 +92,10 @@ header.top_bar {
     background: #111 -webkit-gradient(linear, 0% 0%, 0% 100%, from(#111), to(#3c3c3c));
 }
 
+.inline-button:visited {
+    text-decoration: none;
+}
+
 #new_message_count {
     background-color: red;
     color: #fff;
@@ -99,10 +105,12 @@ header.top_bar {
     display: none;
 }
 
-div.content {
+.content {
+    display: block;
     background-color: #fff;
     -webkit-box-flex : 1;
-    overflow: scroll;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
 #profile-name {
