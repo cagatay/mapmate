@@ -17,11 +17,11 @@ class Box(db.Model):
         return
 
 class User(db.Model):
-    fb_uid           = db.StringProperty()
-    online           = db.BooleanProperty()
-    location         = db.GeoPtProperty()
-    last_update      = db.DateTimeProperty(auto_now = True)
-    box              = db.ReferenceProperty(Box)
+    fb_uid = db.StringProperty()
+    online = db.BooleanProperty()
+    location = db.GeoPtProperty()
+    last_update = db.DateTimeProperty(auto_now = True)
+    box = db.ReferenceProperty(Box)
 
     def save(self, location):
         lat = location['lat']
@@ -40,20 +40,32 @@ class User(db.Model):
         self.fb_uid = self.key().name()
         self.put()
 
-class Chat(db.Model):
-    starter          = db.ReferenceProperty(User, collection_name = 'started_set')
-    participant      = db.ReferenceProperty(User, collection_name = 'participated_set')
-    date             = db.DateTimeProperty(auto_now_add = True)
+class ChatJoin(db.Model):
+    @classmethod
+    def get_chat(cls, sender, reciepent):
+        # to make a unique key out of sender-reciepent uids
+        if sender < reciepent:
+            sender, reciepent = reciepent, sender
+        chat_key = sender + '|' + reciepent
+        
+        return cls.get_or_insert(chat_key)
 
 class Message(db.Model):
-    chat             = db.ReferenceProperty(Chat)
-    sender           = db.ReferenceProperty(User, collection_name = "sent_set")
-    text             = db.TextProperty()
-    date             = db.DateTimeProperty(auto_now_add = True)
-    read             = db.BooleanProperty(default = False)
+    chatjoin = db.ReferenceProperty(ChatJoin)
+    sender = db.ReferenceProperty(User, collection_name = 'sent_set')
+    text = db.TextProperty()
+    date = db.DateTimeProperty(auto_now_add = True)
+    read = db.BooleanProperty(default = False)
+
+class Chat(db.Model):
+    chatjoin = db.ReferenceProperty(ChatJoin)
+    date = db.DateTimeProperty(auto_now_add = True)
+    user = db.ReferenceProperty(User)
+    other = db.ReferenceProperty(User, collection_name='other_set')
+    last_message_text = db.TextProperty()
 
 class Shout(db.Model):
-    box              = db.ReferenceProperty(Box)
-    user             = db.ReferenceProperty(User)
-    text             = db.StringProperty()
-    date             = db.DateTimeProperty(auto_now_add = True)
+    box = db.ReferenceProperty(Box)
+    user = db.ReferenceProperty(User)
+    text = db.StringProperty()
+    date = db.DateTimeProperty(auto_now_add = True)

@@ -218,7 +218,7 @@ app = {
 
             app.createMap();
             openChannel(app.me.token);
-            app.getMessages();
+            app.getChats();
             app.getMates();
 
         });
@@ -237,7 +237,11 @@ app = {
         });
     },
 
-    getMessages : function () {
+    getChats : function () {
+        _a('GET', '/message', null, function (chats) {
+            console.log(chats)
+            return
+        })
         return;
     },
 
