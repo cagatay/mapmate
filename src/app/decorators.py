@@ -37,5 +37,3 @@ def json_in(func):
         func(self, **kwargs)
         return
     return inner_func
-
-

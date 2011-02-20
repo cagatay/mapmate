@@ -104,8 +104,8 @@ function onMessage(message) {
         case 'remove-mate':
             app.removeMate(message.uid);
             break;
-        case 'new-message':
-            app.newMessage(message.message);
+        case 'new-chat':
+            app.newChat(message.chat);
             break;
     }
 }
@@ -122,18 +122,25 @@ function handleState() {
     param = parts[1];
     view = _c('active_view')[0];
     
-    switch (id) {
-        case 'profile':
-            app.showProfile(param);
-            _i(id).className += ' active_view';
-            break;
-        case 'messages':
-            _i(id).className += ' active_view';
-            break;
-        case 'chat':
-            app.showChat(param);
-            _i(id).className += ' active_view';
-            break;
+    try {
+        switch (id) {
+            case 'profile':
+                app.showProfile(param);
+                _i(id).className += ' active_view';
+                break;
+            case 'messages':
+                app.createChatView();
+                _i(id).className += ' active_view';
+                break;
+            case 'chat':
+                app.showChat(param);
+                _i(id).className += ' active_view';
+                break;
+        }
+    }
+    catch (err){
+        console.error(err);
+        _h('');
     }
 
     if (view) {
@@ -199,7 +206,9 @@ function Mate(data) {
 
 /* application object */
 app = {
-    chats : {},
+    chats : {
+        list : {}
+    },
     mates : {},
 
     start : function () {
@@ -226,6 +235,7 @@ app = {
 
     close : function () {
         _a('DELETE', '/user', null);
+        return;
     },
 
     createMap : function () {
@@ -238,11 +248,61 @@ app = {
     },
 
     getChats : function () {
-        _a('GET', '/message', null, function (chats) {
-            console.log(chats)
-            return
-        })
+        var chatlist = _i('chat-list');
+        var chattemplate = _i('chat-list-template');
+        _a('GET', '/chat', null, function (chats) {
+            for(var i in chats) {
+                if(chats.hasOwnProperty(i)) {
+                    var chat = chats[i];
+                    app.chats.list[chat.other.fb_uid] = chat;
+                }
+            }
+            app.updateUnreadCount();
+            console.log(app.chats);
+        });
         return;
+    },
+
+    createChatView : function () {
+        var chatlist = _i('chat-list');
+        var template = _i('chat-template');
+        var elem, children, img, span, link, count = '';
+
+        while(chatlist.hasChildNodes()){
+            chatlist.removeChild(chatlist.firstChild);
+        }
+
+        for(var i in app.chats.list) {
+            if(app.chats.list.hasOwnProperty(i)) {
+                chat = app.chats.list[i];
+                elem = template.cloneNode(true);
+                elem.removeAttribute('id');
+                elem.setAttribute('href', '#chat?' + chat.other.fb_uid);
+                img = elem.getElementsByTagName('img')[0];
+                img.setAttribute('src', 'http://graph.facebook.com/' + chat.other.fb_uid + '/picture');
+                span = elem.getElementsByTagName('span')[0];
+                span.innerHTML = chat.last_message_text;
+                elem.className = '';
+                chatlist.insertBefore(elem, chatlist.firstChild);
+            }
+        }
+        return;
+    },
+
+    updateUnreadCount : function () {
+        var unread = 0, chats = this.chats.list, count = '';
+        for(var c in chats) {
+            if(chats.hasOwnProperty(c)) {
+                if(!chats[c].read) {
+                    unread ++;
+                }
+            }
+        }
+        link = _i('messages-link');
+        if(unread) {
+            count = ' (' + unread + ')';
+        }
+        link.innerHTML = 'messages' + count;
     },
 
     getMates : function () {
@@ -270,8 +330,9 @@ app = {
         delete app.mates[uid];
     },
 
-    newMessage : function (message) {
-        console.log(message);
+    newChat : function (chat) {
+        this.chats.list[chat.other.fb_uid] = chat;
+        this.updateUnreadCount();
         return;
     },
 
@@ -318,9 +379,38 @@ app = {
         });
     },
 
-    showChat : function (id) {
+    showChat : function (uid) {
         var but = _i('post-message');
-        but.dataset.uid = id;
+        var messagelist = _i('message-list');
+        _a('GET', '/message?uid=' + uid, null, function (messages) {
+            if(!app.chats.list[uid]) {
+                app.chats.list[uid] = {};
+            }
+            app.chats.list[uid].messages = messages;
+            console.log(messages);
+        }, false);
+
+        while(messagelist.hasChildNodes()) {
+            messagelist.removeChild(messagelist.firstChild);
+        }
+
+        var message, messages = this.chats.list[uid].messages;
+        for(var m in messages) {
+            if(messages.hasOwnProperty(m)) {
+                message = messages[m];
+                var template = _i('message-template');
+                var elem = template.cloneNode(true);
+                elem.removeAttribute('id');
+                var img = elem.getElementsByTagName('img')[0];
+                img.setAttribute('src', 'http://graph.facebook.com/' + message.sender.fb_uid + '/picture');
+                var span = elem.getElementsByTagName('span')[0];
+                span.innerHTML = message.text;
+                messagelist.appendChild(elem);
+            }
+        }
+        but.dataset.uid = uid;
+        this.chats.list[uid].read = true;
+        this.updateUnreadCount();
     }
         
 };

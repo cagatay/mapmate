@@ -13,6 +13,22 @@ textarea {
     -webkit-box-flex: 1;
 }
 
+ul {
+    list-style-type: none;
+}
+
+a {
+    text-decoration: none;
+}
+
+a:visited {
+    text-decoration: none;
+}
+
+.template {
+    display: none;
+}
+
 div#div_ph {
     background: #111 -webkit-gradient(linear, 0% 0%, 0% 100%, from(#3C3C3C), to(#111));
     padding: 8px;
@@ -81,7 +97,6 @@ header.top_bar {
     font-size: 16px;
     font-weight: bold;
     text-align: center;
-    text-decoration: none;
     cursor: pointer;
     -webkit-box-flex: 1;
     padding-top: 9px;
@@ -90,10 +105,6 @@ header.top_bar {
 
 .inline-button:active {
     background: #111 -webkit-gradient(linear, 0% 0%, 0% 100%, from(#111), to(#3c3c3c));
-}
-
-.inline-button:visited {
-    text-decoration: none;
 }
 
 #new_message_count {
@@ -111,6 +122,10 @@ header.top_bar {
     -webkit-box-flex : 1;
     overflow-y: auto;
     overflow-x: hidden;
+}
+
+.scrollable {
+    overflow: auto;
 }
 
 #profile-name {

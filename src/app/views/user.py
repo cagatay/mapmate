@@ -3,7 +3,6 @@ Created on Dec 25, 2010
 
 @author: cagatay
 '''
-import logging
 
 from app.models import User
 from app.views import base
@@ -43,7 +42,6 @@ class view(base.view):
 
     @require_auth
     def delete(self):
-        logging.info('in delete')
         uid = self.fb_uid
         
         user = User.get_by_key_name(uid)

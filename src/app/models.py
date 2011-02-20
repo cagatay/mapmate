@@ -55,7 +55,6 @@ class Message(db.Model):
     sender = db.ReferenceProperty(User, collection_name = 'sent_set')
     text = db.TextProperty()
     date = db.DateTimeProperty(auto_now_add = True)
-    read = db.BooleanProperty(default = False)
 
 class Chat(db.Model):
     chatjoin = db.ReferenceProperty(ChatJoin)
@@ -63,6 +62,7 @@ class Chat(db.Model):
     user = db.ReferenceProperty(User)
     other = db.ReferenceProperty(User, collection_name='other_set')
     last_message_text = db.TextProperty()
+    read = db.BooleanProperty(default = False)
 
 class Shout(db.Model):
     box = db.ReferenceProperty(Box)
