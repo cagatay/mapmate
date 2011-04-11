@@ -1,134 +1,52 @@
 * {
-    margin : 0;
-    padding : 0;
-    font-family: Helvetica;
+    margin: 0;
+    padding: 0;
 }
 
-html, body {
+html {
     height : 100%;
+    width: 100%;
 }
 
-textarea {
-    display: block;
-    -webkit-box-flex: 1;
-}
-
-ul {
-    list-style-type: none;
-}
-
-a {
-    text-decoration: none;
-}
-
-a:visited {
-    text-decoration: none;
-}
-
-.template {
-    display: none;
-}
-
-div#div_ph {
-    background: #111 -webkit-gradient(linear, 0% 0%, 0% 100%, from(#3C3C3C), to(#111));
-    padding: 8px;
-    text-align: center;
-    margin: auto;
-}
-
-article.view {
+body {
     height: inherit;
     width: inherit;
-    position: absolute;
-    right: 0;
-    left: 0;
-    z-index: -1;
+    font-family: Helvetica;
+    display: -moz-box;
     display: -webkit-box;
+    display: box;
+    -moz-box-orient: vertical;
     -webkit-box-orient: vertical;
-    background-color: #fff;
+    box-oritent: vertical;
 }
 
-article.active_view {
-    z-index : 1;
+header > * {
+    display: inline;
 }
 
-article#main {
-    z-index: 0;
-}
-
-article#start {
-    background-color: #fff;
-    background-image: url('http://maps.google.com/maps/api/staticmap?center=Taksim+Meydani,Istanbul&size=320x480&sensor=true');
-    background-size: 100%;
-    -webkit-box-align: center;
-}
-
-header.top_bar {
-    background: #111 -webkit-gradient(linear, 0% 0%, 0% 100%, from(#3C3C3C), to(#111));
-    color : #fff;
-    padding: 1px 2px 1px 2px;
+.main {
+    display: -moz-box;
     display: -webkit-box;
-}
-
-.content-row {
-    height: auto;
-    display: -webkit-box;
-    padding: 5px;
-}
-
-.content-row > * {
-    display: block;
-    height: 50px;
-}
-
-.top-title {
-    padding: 9px 2px 9px 2px;
-    text-align: center;
-    -webkit-box-flex: 2;
-    border-right: 1px solid #111;
-    border-left: 1px solid #111;
-    font-size: 18px;
-}
-
-.inline-button {
-    border: none;
-    display: block;
-    color: #fff;
-    font-size: 16px;
-    font-weight: bold;
-    text-align: center;
-    cursor: pointer;
+    display: box;
+    -moz-box-flex: 1;
     -webkit-box-flex: 1;
-    padding-top: 9px;
-    background: #111 -webkit-gradient(linear, 0% 0%, 0% 100%, from(#3C3C3C), to(#111));
+    box-flex: 1;
+    -moz-box-orient: horizontal;
+    -webkit-box-orient: horizontal;
+    box-oritent: horizontal;
 }
 
-.inline-button:active {
-    background: #111 -webkit-gradient(linear, 0% 0%, 0% 100%, from(#111), to(#3c3c3c));
+#mh {
+    background: yellow;
 }
 
-#new_message_count {
-    background-color: red;
-    color: #fff;
-    padding: 2px;
-    margin-left: 2px;
-    -webkit-border-radius: 8px;
-    display: none;
+#mm {
+    width: 300px;
+    background: #000;
 }
 
-.content {
-    display: block;
-    background-color: #fff;
-    -webkit-box-flex : 1;
-    overflow-y: auto;
-    overflow-x: hidden;
-}
-
-.scrollable {
-    overflow: auto;
-}
-
-#profile-name {
-    padding: 5px;
+#map-canvas {
+    -moz-box-flex: 1;
     -webkit-box-flex: 1;
+    box-flex: 1;
 }

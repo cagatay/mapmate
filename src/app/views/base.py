@@ -11,7 +11,7 @@ class view(webapp.RequestHandler):
     def _get_fb_user(self):
         self.fb_uid = None
         user = facebook.get_user_from_cookie(self.request.cookies,
-                                             settings.FACEBOOK_CLIENT_ID,
+                                             settings.FACEBOOK_APP_ID,
                                              settings.FACEBOOK_APP_SECRET)
         if user:
             self.fb_access_token = user['access_token']
