@@ -20,8 +20,13 @@ body {
     box-oritent: vertical;
 }
 
-header > * {
-    display: inline;
+#mh {
+    display: -moz-box;
+    display: -webkit-box;
+    display: box;
+    -moz-box-orient: horizontal;
+    -webkit-box-orient: horizontal;
+    box-oritent: horizontal;
 }
 
 .main {
@@ -36,13 +41,22 @@ header > * {
     box-oritent: horizontal;
 }
 
-#mh {
-    background: yellow;
-}
-
 #mm {
     width: 300px;
-    background: #000;
+}
+
+#mn-l, #mn-r {
+    -moz-box-flex: 1;
+    -webkit-box-flex: 1;
+    box-flex: 1;
+}
+
+#mn-l {
+    text-align: left;
+}
+
+#mn-r {
+    text-align: right;
 }
 
 #map-canvas {

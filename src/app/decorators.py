@@ -24,13 +24,13 @@ def json_out(func):
 def json_in(func):
     def inner_func(self):
         data = self.request.body
-        dic = {}
+        dict_ = {}
         kwargs = {}
         if data:
             try:
-                dic.update(simplejson.loads(data))
+                dict_.update(simplejson.loads(data))
                 # workaround for a bug in python2.5
-                for key, val in dic.iteritems():
+                for key, val in dict_.iteritems():
                     kwargs[key.encode('utf-8')] = val
             except Exception:
                 traceback.print_exc()

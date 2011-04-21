@@ -5,7 +5,6 @@ from lib import json
 from lib import facebook
 import settings
 import traceback
-import logging
 
 class view(webapp.RequestHandler):
     def _get_fb_user(self):
@@ -38,7 +37,5 @@ class view(webapp.RequestHandler):
 
 
     def write_json(self, data):
-        self.response.out.write(json.encode({
-            'data': data
-        }))
+        self.response.out.write(json.encode(data))
         return

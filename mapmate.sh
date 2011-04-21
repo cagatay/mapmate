@@ -1,1 +1,1 @@
-python2.5 /home/cagatay/Programs/google_appengine/dev_appserver.py --use_sqlite -p 8080 src
+python2.5 /usr/local/share/google_appengine/dev_appserver.py --use_sqlite src
