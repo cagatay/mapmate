@@ -11,6 +11,7 @@ html, body {
 textarea {
     display: block;
     -webkit-box-flex: 1;
+    -moz-box-flex: 1;
 }
 
 ul {
@@ -44,7 +45,11 @@ article.view {
     left: 0;
     z-index: -1;
     display: -webkit-box;
+    display: box;
     -webkit-box-orient: vertical;
+    -moz-box-orient: vertical;
+    -webkit-box-orient: stretch;
+    -moz-box-orient: stretch;
     background-color: #fff;
 }
 
@@ -52,15 +57,12 @@ article.active_view {
     z-index : 1;
 }
 
-article#main {
-    z-index: 0;
-}
-
 article#start {
     background-color: #fff;
     background-image: url('http://maps.google.com/maps/api/staticmap?center=Taksim+Meydani,Istanbul&size=320x480&sensor=true');
     background-size: 100%;
     -webkit-box-align: center;
+    -moz-box-align: center;
 }
 
 header.top_bar {
@@ -68,11 +70,13 @@ header.top_bar {
     color : #fff;
     padding: 1px 2px 1px 2px;
     display: -webkit-box;
+    display: -moz-box
 }
 
 .content-row {
     height: auto;
     display: -webkit-box;
+    display: -moz-box;
     padding: 5px;
 }
 
@@ -85,6 +89,7 @@ header.top_bar {
     padding: 9px 2px 9px 2px;
     text-align: center;
     -webkit-box-flex: 2;
+    -moz-box-flex: 2;
     border-right: 1px solid #111;
     border-left: 1px solid #111;
     font-size: 18px;
@@ -99,6 +104,7 @@ header.top_bar {
     text-align: center;
     cursor: pointer;
     -webkit-box-flex: 1;
+    -moz-box-flex: 1;
     padding-top: 9px;
     background: #111 -webkit-gradient(linear, 0% 0%, 0% 100%, from(#3C3C3C), to(#111));
 }
@@ -120,6 +126,7 @@ header.top_bar {
     display: block;
     background-color: #fff;
     -webkit-box-flex : 1;
+    -moz-box-flex: 1;
     overflow-y: auto;
     overflow-x: hidden;
 }
@@ -131,4 +138,5 @@ header.top_bar {
 #profile-name {
     padding: 5px;
     -webkit-box-flex: 1;
+    -moz-box-flex: 1;
 }

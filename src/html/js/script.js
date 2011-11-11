@@ -1,7 +1,7 @@
 /*global google, goog */
 
 FB.init({
-    appId: '159835304059396',
+    appId: '194734940551571',
     status: true,
     cookie: true,
     xfbml: true
@@ -136,6 +136,9 @@ function handleState() {
                 app.showChat(param);
                 _i(id).className += ' active_view';
                 break;
+            case 'main':
+                _i(id).className += ' active_view';
+                break;
         }
     }
     catch (err){
@@ -164,7 +167,7 @@ function getLocation() {
 function main() {
     FB.getLoginStatus(function (response) {
         if(response.session) {
-            handleState();
+            _h('#main');
             getLocation();
         }
     });
@@ -421,10 +424,10 @@ _e('hashchange', handleState);
 _e('unload', close);
 _i('post-message').addEventListener('click', function () {
     app.postMessage(this.dataset.uid);
-});
+}, false);
 FB.Event.subscribe('auth.sessionChange', function (response) {
     if(response.session) {
-        handleState();
+        _h('#main');
         getLocation();
     }
 });
